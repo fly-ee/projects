@@ -1,7 +1,9 @@
 #include <windows.h>
+#include <conio.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <math.h>
 using namespace std;
 
 DWORD WINAPI sh1(LPVOID LpParam) {
@@ -18,13 +20,13 @@ DWORD WINAPI sh1(LPVOID LpParam) {
 	SelectObject(mem, temp);
 	for (;;) {
         hdc = GetDC(0);
-        BitBlt(mem, 0, 0, w, h, hdc, 0, 0, SRCCOPY);
-		    for (int i = 0; i < w * h; i++) {
-                int x = i % w, y = i / w;
-                int exp = x * y;
-                rgb[i].rgbRed += (exp >> 16) & 255;
-                rgb[i].rgbGreen += (exp >> 8) & 255;
-                rgb[i].rgbBlue += exp;
+		BitBlt(mem, 0, 0, w, h, hdc, 0, 0, SRCCOPY);
+		for (int i = 0; i < w * h; i++) {
+			int x = i % w, y = i / w;
+			int exp = x * y;
+			rgb[i].rgbRed += (exp >> 16) & 255;
+			rgb[i].rgbGreen += (exp >> 8) & 255;
+			rgb[i].rgbBlue += exp;
 		}
 		BitBlt(hdc, 0, 0, w, h, mem, 0, 0, SRCCOPY);
 		ReleaseDC(NULL, hdc); DeleteDC(hdc);
@@ -84,9 +86,8 @@ DWORD WINAPI bounce(LPVOID LpParam) {
 		}
 		HBRUSH brs = CreateSolidBrush(RGB(i & 255, (i >> 8) & 255, (i >> 16) & 255));
 		SelectObject(hdc, brs);
-		Ellipse(hdc, x, y, x + 32, y + 32);
-		DeleteObject(brs)
-
+		Ellipse(hdc, x, y, x + 64, y + 64);
+		DeleteObject(brs);
 		ReleaseDC(NULL, hdc); DeleteDC(hdc);
 		Sleep(10);
 	}
@@ -109,8 +110,10 @@ DWORD WINAPI texts(LPVOID LpParam) {
         hdc = GetDC(0);
         SetBkColor(hdc, RGB(rand() % 256, rand() % 256, rand() % 256));
         HBRUSH brs = CreateSolidBrush(RGB(rand() % 256, rand() % 256, rand() % 256));
-		SelectObject(hdc, brs);TextOutA(hdc, rand() % w, rand() % h, "window.exe", 10);
-		ReleaseDC(NULL, hdc); DeleteDC(hdc);
+		SelectObject(hdc, brs);
+		TextOutA(hdc, rand() % w, rand() % h, "window.exe", 10);
+		ReleaseDC(NULL, hdc);
+		DeleteDC(hdc);
 	}
 }
 
@@ -119,9 +122,9 @@ void WINAPI so1() {
 	WAVEFORMATEX wfx = { WAVE_FORMAT_PCM, 1, 8000, 8000, 1, 8, 0 };
 	waveOutOpen(&hWaveOut, WAVE_MAPPER, &wfx, 0, 0, CALLBACK_NULL);
 	char buffer[8000 * 7] = {};
-	for (DWORD t = 0; t < sizeof(buffer); ++t) {
+	for (DWORD t = 0; t < sizeof(buffer); ++t)
 		buffer[t] = static_cast<char>(t*(42&t>>10));
-    }
+
 	WAVEHDR header = { buffer, sizeof(buffer), 0, 0, 0, 0, 0, 0 };
 	waveOutPrepareHeader(hWaveOut, &header, sizeof(WAVEHDR));
 	waveOutWrite(hWaveOut, &header, sizeof(WAVEHDR));
@@ -134,9 +137,9 @@ void WINAPI so2() {
 	WAVEFORMATEX wfx = { WAVE_FORMAT_PCM, 1, 8000, 8000, 1, 8, 0 };
 	waveOutOpen(&hWaveOut, WAVE_MAPPER, &wfx, 0, 0, CALLBACK_NULL);
 	char buffer[8000 * 7] = {};
-	for (DWORD t = 0; t < sizeof(buffer); ++t) {
+	for (DWORD t = 0; t < sizeof(buffer); ++t)
 		buffer[t] = static_cast<char>(6*t&t>>8|t>>4|t>>7);
-    }
+
 	WAVEHDR header = { buffer, sizeof(buffer), 0, 0, 0, 0, 0, 0 };
 	waveOutPrepareHeader(hWaveOut, &header, sizeof(WAVEHDR));
 	waveOutWrite(hWaveOut, &header, sizeof(WAVEHDR));
@@ -148,10 +151,10 @@ void WINAPI so3() {
 	HWAVEOUT hWaveOut = 0;
 	WAVEFORMATEX wfx = { WAVE_FORMAT_PCM, 1, 8000, 8000, 1, 8, 0 };
 	waveOutOpen(&hWaveOut, WAVE_MAPPER, &wfx, 0, 0, CALLBACK_NULL);
-	char buffer[8000 * 10] = {};
-	for (DWORD t = 0; t < sizeof(buffer); ++t) {
+	char buffer[8000 * 20] = {};
+	for (DWORD t = 0; t < sizeof(buffer); ++t)
 		buffer[t] = static_cast<char>(t-(t^t>>8));
-    }
+
 	WAVEHDR header = { buffer, sizeof(buffer), 0, 0, 0, 0, 0, 0 };
 	waveOutPrepareHeader(hWaveOut, &header, sizeof(WAVEHDR));
 	waveOutWrite(hWaveOut, &header, sizeof(WAVEHDR));
@@ -163,10 +166,10 @@ void WINAPI so4() {
 	HWAVEOUT hWaveOut = 0;
 	WAVEFORMATEX wfx = { WAVE_FORMAT_PCM, 1, 8000, 8000, 1, 8, 0 };
 	waveOutOpen(&hWaveOut, WAVE_MAPPER, &wfx, 0, 0, CALLBACK_NULL);
-	char buffer[8000 * 7] = {};
-	for (DWORD t = 0; t < sizeof(buffer); ++t) {
+	char buffer[8000 * 5] = {};
+	for (DWORD t = 0; t < sizeof(buffer); ++t)
 		buffer[t] = static_cast<char>(t-(t^t>>8));
-    }
+
 	WAVEHDR header = { buffer, sizeof(buffer), 0, 0, 0, 0, 0, 0 };
 	waveOutPrepareHeader(hWaveOut, &header, sizeof(WAVEHDR));
 	waveOutWrite(hWaveOut, &header, sizeof(WAVEHDR));
@@ -178,10 +181,10 @@ void WINAPI so5() {
 	HWAVEOUT hWaveOut = 0;
 	WAVEFORMATEX wfx = { WAVE_FORMAT_PCM, 1, 8000, 8000, 1, 8, 0 };
 	waveOutOpen(&hWaveOut, WAVE_MAPPER, &wfx, 0, 0, CALLBACK_NULL);
-	char buffer[8000 * 7] = {};
-	for (DWORD t = 0; t < sizeof(buffer); ++t) {
+	char buffer[8000 * 5] = {};
+	for (DWORD t = 0; t < sizeof(buffer); ++t)
 		buffer[t] = static_cast<char>(t*(t-(t^t>>8)));
-    }
+
 	WAVEHDR header = { buffer, sizeof(buffer), 0, 0, 0, 0, 0, 0 };
 	waveOutPrepareHeader(hWaveOut, &header, sizeof(WAVEHDR));
 	waveOutWrite(hWaveOut, &header, sizeof(WAVEHDR));
@@ -216,7 +219,7 @@ int main() {
     InvalidateRect(0, 0, 0);
     so3();
     HANDLE thr3 = CreateThread(0, 0, bounce, 0, 0, 0);
-    Sleep(10000);
+    Sleep(20000);
     TerminateThread(thr3, 0);
     CloseHandle(thr3);
     Sleep(1000);
@@ -236,4 +239,4 @@ int main() {
 
     MessageBoxA(NULL, "alright, this is it", "The End", MB_ICONINFORMATION | MB_OK);
     return 0;
-} // note: this isn't the original source code (i did some editing)
+}
